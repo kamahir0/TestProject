@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UniRx;
+using UnityEditor;
 
 public class RapidButton : Button, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
@@ -87,3 +88,28 @@ public class RapidButton : Button, IPointerDownHandler, IPointerUpHandler, IPoin
         currentRapidFire = null;
     }
 }
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(RapidButton))]
+public class RapidButtonEditor : UnityEditor.UI.ButtonEditor
+{
+    SerializedProperty firstIntervalProp;
+    SerializedProperty rapidIntervalProp;
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        firstIntervalProp = serializedObject.FindProperty("firstInterval");
+        rapidIntervalProp = serializedObject.FindProperty("rapidInterval");
+    }
+
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        serializedObject.Update();
+        EditorGUILayout.PropertyField(firstIntervalProp, new GUIContent("First Interval"));
+        EditorGUILayout.PropertyField(rapidIntervalProp, new GUIContent("Rapid Interval"));
+        serializedObject.ApplyModifiedProperties();
+    }
+}
+#endif
