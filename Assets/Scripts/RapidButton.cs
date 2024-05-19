@@ -14,7 +14,7 @@ public class RapidButton : Button, IPointerDownHandler, IPointerUpHandler, IPoin
     /// </summary>
     private class RapidFire
     {
-        private float counter; // DeltaTimeを積むカウンタ
+        private float counter;
         readonly private float interval;
         readonly private UnityAction onRapidFire;
 
@@ -33,7 +33,7 @@ public class RapidButton : Button, IPointerDownHandler, IPointerUpHandler, IPoin
         public void CountAndFire(float deltaTime)
         {
             counter += deltaTime;
-            if (counter >= interval) onRapidFire.Invoke();
+            if (counter >= interval) onRapidFire?.Invoke();
 
             // インターバルを超えたらカウントをリセット
             counter = counter % interval;
@@ -65,12 +65,14 @@ public class RapidButton : Button, IPointerDownHandler, IPointerUpHandler, IPoin
         onRapidFire.OnNext(Unit.Default); // 押し下げた瞬間にも1回OnNext
         currentRapidFire = new RapidFire(firstInterval, OnIntroHold);
 
+        // 押下から連射開始まで適用
         void OnIntroHold()
         {
             onRapidFire.OnNext(Unit.Default);
             currentRapidFire = new RapidFire(rapidInterval, OnSubsequentHold);
         }
 
+        // 連射開始から押上まで適用
         void OnSubsequentHold() => onRapidFire.OnNext(Unit.Default);
     }
 
@@ -87,6 +89,16 @@ public class RapidButton : Button, IPointerDownHandler, IPointerUpHandler, IPoin
         isPressed = false;
         currentRapidFire = null;
     }
+
+    // 一応、継承元のonClickにAddListenerしても通知するようにしてある
+    protected override void Awake()
+    {
+        base.Awake();
+        onRapidFire.Subscribe(_ => onClick?.Invoke()).AddTo(this);
+    }
+
+    // 継承元の通常OnPointerClickは処理が被るので握り潰す
+    public override void OnPointerClick(PointerEventData _){}
 }
 
 #if UNITY_EDITOR

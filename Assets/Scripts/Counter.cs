@@ -25,14 +25,12 @@ public class Counter : MonoBehaviour
 
     public void IncrementCounter()
     {
-        Debug.Log("Incremented");
         counter++;
         counterTMP.text = counter.ToString();
     }
 
     public void DecrementCounter()
     {
-        Debug.Log("Decremented");
         counter--;
         counterTMP.text = counter.ToString();
     }
